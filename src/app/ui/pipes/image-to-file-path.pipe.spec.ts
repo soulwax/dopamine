@@ -2,7 +2,7 @@ import { ImageToFilePathPipe } from './image-to-file-path.pipe';
 
 describe('ImageToFilePathPipe', () => {
     describe('transform', () => {
-        it('should return a file path for a given Unix path if the path is not an empty image', () => {
+        it('should return a file url for a given Unix path if the path is not an empty image', () => {
             // Arrange
             const pipe: ImageToFilePathPipe = new ImageToFilePathPipe();
 
@@ -10,7 +10,7 @@ describe('ImageToFilePathPipe', () => {
             const filePath: string = pipe.transform('/home/user/Music/Dopamine/Playlists/Playlist folder 1/Playlist 1.png');
 
             // Assert
-            expect(filePath).toEqual('file:////home/user/Music/Dopamine/Playlists/Playlist folder 1/Playlist 1.png');
+            expect(filePath).toEqual('file:///home/user/Music/Dopamine/Playlists/Playlist%20folder%201/Playlist%201.png');
         });
 
         it('should return a file path for a given Windows path if the path is not an empty image', () => {
@@ -21,7 +21,7 @@ describe('ImageToFilePathPipe', () => {
             const filePath: string = pipe.transform('c:\\Users\\User\\Music\\Dopamine\\Playlists\\Playlist folder 1\\Playlist 1.png');
 
             // Assert
-            expect(filePath).toEqual('file:///c:\\Users\\User\\Music\\Dopamine\\Playlists\\Playlist folder 1\\Playlist 1.png');
+            expect(filePath).toEqual('file:///c:/Users/User/Music/Dopamine/Playlists/Playlist%20folder%201/Playlist%201.png');
         });
 
         it('should return the empty image if the path is an empty image', () => {

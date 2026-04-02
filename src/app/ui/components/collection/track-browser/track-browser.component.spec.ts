@@ -41,7 +41,7 @@ describe('TrackBrowserComponent', () => {
     let dialogServiceMock: IMock<DialogServiceBase>;
     let dateTimeMock: IMock<DateTime>;
     let guidFactoryMock: IMock<GuidFactory>;
-    let settingsMock: any;
+    let settingsMock: SettingsMock;
 
     let playbackStartedMock: Subject<PlaybackStarted>;
     let playbackStartedMock$: Observable<PlaybackStarted>;
@@ -84,6 +84,7 @@ describe('TrackBrowserComponent', () => {
         dateTimeMock = Mock.ofType<DateTime>();
         guidFactoryMock = Mock.ofType<GuidFactory>();
         settingsMock = new SettingsMock();
+        settingsMock.useExpandedTrackListView = false;
 
         playbackStartedMock = new Subject();
         playbackStartedMock$ = playbackStartedMock.asObservable();
@@ -141,10 +142,10 @@ describe('TrackBrowserComponent', () => {
         track4.rating = 4;
         track4.love = 0;
 
-        trackModel1 = new TrackModel(track1, dateTimeMock.object, translatorServiceMock.object, settingsMock);
-        trackModel2 = new TrackModel(track2, dateTimeMock.object, translatorServiceMock.object, settingsMock);
-        trackModel3 = new TrackModel(track3, dateTimeMock.object, translatorServiceMock.object, settingsMock);
-        trackModel4 = new TrackModel(track4, dateTimeMock.object, translatorServiceMock.object, settingsMock);
+        trackModel1 = new TrackModel(track1, dateTimeMock.object, translatorServiceMock.object, '');
+        trackModel2 = new TrackModel(track2, dateTimeMock.object, translatorServiceMock.object, '');
+        trackModel3 = new TrackModel(track3, dateTimeMock.object, translatorServiceMock.object, '');
+        trackModel4 = new TrackModel(track4, dateTimeMock.object, translatorServiceMock.object, '');
         tracks = new TrackModels();
         tracks.addTrack(trackModel1);
         tracks.addTrack(trackModel2);
@@ -171,6 +172,7 @@ describe('TrackBrowserComponent', () => {
             guidFactoryMock.object,
             trackSorterMock.object,
             trackServiceMock.object,
+            settingsMock,
             collectionServiceMock.object,
             translatorServiceMock.object,
             dialogServiceMock.object,
@@ -249,6 +251,26 @@ describe('TrackBrowserComponent', () => {
 
             // Assert
             expect(component.trackOrderKey).toEqual(trackOrderKey);
+        });
+
+        it('should define useExpandedTrackListView as false', () => {
+            // Arrange
+
+            // Act
+            const component: TrackBrowserComponent = createComponent();
+
+            // Assert
+            expect(component.useExpandedTrackListView).toBeFalsy();
+        });
+
+        it('should define trackRowHeight as the compact row height by default', () => {
+            // Arrange
+
+            // Act
+            const component: TrackBrowserComponent = createComponent();
+
+            // Assert
+            expect(component.trackRowHeight).toEqual(component.compactTrackRowHeight);
         });
     });
 
@@ -333,6 +355,18 @@ describe('TrackBrowserComponent', () => {
     });
 
     describe('ngOnInit', () => {
+        it('should initialize useExpandedTrackListView from settings', () => {
+            // Arrange
+            settingsMock.useExpandedTrackListView = true;
+            const component: TrackBrowserComponent = createComponent();
+
+            // Act
+            component.ngOnInit();
+
+            // Assert
+            expect(component.useExpandedTrackListView).toBeTruthy();
+        });
+
         it('should set the playing track on playback started', () => {
             // Arrange
             const component: TrackBrowserComponent = createComponent();
@@ -370,7 +404,7 @@ describe('TrackBrowserComponent', () => {
             const track5 = new Track('Path 1');
             track5.rating = 5;
 
-            const trackModel5: TrackModel = new TrackModel(track5, dateTimeMock.object, translatorServiceMock.object, settingsMock);
+            const trackModel5: TrackModel = new TrackModel(track5, dateTimeMock.object, translatorServiceMock.object, '');
 
             // Act
             component.ngOnInit();
@@ -391,7 +425,7 @@ describe('TrackBrowserComponent', () => {
             const track5 = new Track('Path 1');
             track5.love = 1;
 
-            const trackModel5: TrackModel = new TrackModel(track5, dateTimeMock.object, translatorServiceMock.object, settingsMock);
+            const trackModel5: TrackModel = new TrackModel(track5, dateTimeMock.object, translatorServiceMock.object, '');
 
             // Act
             component.ngOnInit();
@@ -418,6 +452,33 @@ describe('TrackBrowserComponent', () => {
 
             // Assert
             mouseSelectionWatcherMock.verify((x) => x.setSelectedItems(event, trackModel2), Times.exactly(1));
+        });
+    });
+
+    describe('toggleTrackView', () => {
+        it('should toggle and persist useExpandedTrackListView', () => {
+            // Arrange
+            const component: TrackBrowserComponent = createComponent();
+            component.useExpandedTrackListView = false;
+            settingsMock.useExpandedTrackListView = false;
+
+            // Act
+            component.toggleTrackView();
+
+            // Assert
+            expect(component.useExpandedTrackListView).toBeTruthy();
+            expect(settingsMock.useExpandedTrackListView).toBeTruthy();
+        });
+
+        it('should use the expanded row height after toggling', () => {
+            // Arrange
+            const component: TrackBrowserComponent = createComponent();
+
+            // Act
+            component.toggleTrackView();
+
+            // Assert
+            expect(component.trackRowHeight).toEqual(component.expandedTrackRowHeight);
         });
     });
 

@@ -1,12 +1,16 @@
 import { IMock, Mock } from 'typemoq';
+import { ApplicationPaths } from '../../common/application/application-paths';
+import { Constants } from '../../common/application/constants';
+import { FileAccessBase } from '../../common/io/file-access.base';
 import { DateTime } from '../../common/date-time';
 import { TrackModel } from './track-model';
 import { TranslatorServiceBase } from '../translator/translator.service.base';
 import { Track } from '../../data/entities/track';
-import { SettingsMock } from '../../testing/settings-mock';
 
 describe('TrackModel', () => {
     let track: Track;
+    let applicationPathsMock: IMock<ApplicationPaths>;
+    let fileAccessMock: IMock<FileAccessBase>;
     let dateTimeMock: IMock<DateTime>;
     let translatorServiceMock: IMock<TranslatorServiceBase>;
 
@@ -24,6 +28,9 @@ describe('TrackModel', () => {
         track.albumKey = 'albumKey';
         track.albumKey2 = 'albumKey2';
         track.albumKey3 = 'albumKey3';
+        track.artworkId = 'artworkId';
+        track.artworkId2 = 'artworkId2';
+        track.artworkId3 = 'artworkId3';
         track.albumTitle = 'Album title';
         track.albumArtists = ';Album artist 1;;Album artist 2;';
         track.duration = 45648713213;
@@ -35,6 +42,8 @@ describe('TrackModel', () => {
         track.dateAdded = 89;
         track.dateLastPlayed = 74;
 
+        applicationPathsMock = Mock.ofType<ApplicationPaths>();
+        fileAccessMock = Mock.ofType<FileAccessBase>();
         dateTimeMock = Mock.ofType<DateTime>();
         translatorServiceMock = Mock.ofType<TranslatorServiceBase>();
         translatorServiceMock.setup((x) => x.get('unknown-album')).returns(() => 'Unknown album');
@@ -42,8 +51,8 @@ describe('TrackModel', () => {
         translatorServiceMock.setup((x) => x.get('unknown-genre')).returns(() => 'Unknown genre');
     });
 
-    function createTrackModel(albumKeyIndex: string): TrackModel {
-        return new TrackModel(track, dateTimeMock.object, translatorServiceMock.object, albumKeyIndex);
+    function createTrackModel(albumKeyIndex: string, applicationPaths?: ApplicationPaths, fileAccess?: FileAccessBase): TrackModel {
+        return new TrackModel(track, dateTimeMock.object, translatorServiceMock.object, albumKeyIndex, applicationPaths, fileAccess);
     }
 
     describe('constructor', () => {
@@ -725,6 +734,68 @@ describe('TrackModel', () => {
 
             // Assert
             expect(albumTitle).toEqual('Album title');
+        });
+    });
+
+    describe('artworkPath', () => {
+        it('should return the default empty image when ApplicationPaths is not defined', () => {
+            // Arrange
+            const trackModel: TrackModel = createTrackModel('');
+
+            // Act
+            const artworkPath: string = trackModel.artworkPath;
+
+            // Assert
+            expect(artworkPath).toEqual(Constants.emptyImage);
+        });
+
+        it('should return the default empty image when the selected artwork id is empty', () => {
+            // Arrange
+            track.artworkId = '';
+            const trackModel: TrackModel = createTrackModel('', applicationPathsMock.object);
+
+            // Act
+            const artworkPath: string = trackModel.artworkPath;
+
+            // Assert
+            expect(artworkPath).toEqual(Constants.emptyImage);
+        });
+
+        it('should return the artwork path for the selected album key', () => {
+            // Arrange
+            applicationPathsMock.setup((x) => x.coverArtFullPath('artworkId')).returns(() => '/root/directory/artworkId.jpg');
+            const trackModel: TrackModel = createTrackModel('', applicationPathsMock.object);
+
+            // Act
+            const artworkPath: string = trackModel.artworkPath;
+
+            // Assert
+            expect(artworkPath).toEqual('file:///root/directory/artworkId.jpg');
+        });
+
+        it('should return the alternate artwork path when albumKeyIndex is "2"', () => {
+            // Arrange
+            applicationPathsMock.setup((x) => x.coverArtFullPath('artworkId2')).returns(() => '/root/directory/artworkId2.jpg');
+            const trackModel: TrackModel = createTrackModel('2', applicationPathsMock.object);
+
+            // Act
+            const artworkPath: string = trackModel.artworkPath;
+
+            // Assert
+            expect(artworkPath).toEqual('file:///root/directory/artworkId2.jpg');
+        });
+
+        it('should return the default empty image when the artwork file does not exist', () => {
+            // Arrange
+            applicationPathsMock.setup((x) => x.coverArtFullPath('artworkId')).returns(() => '/root/directory/artworkId.jpg');
+            fileAccessMock.setup((x) => x.pathExists('/root/directory/artworkId.jpg')).returns(() => false);
+            const trackModel: TrackModel = createTrackModel('', applicationPathsMock.object, fileAccessMock.object);
+
+            // Act
+            const artworkPath: string = trackModel.artworkPath;
+
+            // Assert
+            expect(artworkPath).toEqual(Constants.emptyImage);
         });
     });
 

@@ -5,40 +5,45 @@
             <div *ngIf="this.tracks.numberOfTracks === 1">{{ 'track' | translate }}</div>
             <div *ngIf="this.tracks.numberOfTracks !== 1">{{ 'tracks' | translate }}</div>
         </div>
-        <app-iterable-menu
-            *ngIf="this.showOrdering"
-            [tooltipKey]="'choose-order'"
-            [currentItem]="selectedTrackOrder"
-            [items]="trackOrders"
-            [itemKeyFn]="trackOrderKey"
-            [applyItemFn]="applyTrackOrder"
-        >
-        </app-iterable-menu>
+        <div class="d-flex flex-row align-items-center">
+            <div class="d-flex mr-4" style="margin-top: 1px">
+                <app-icon-button
+                    *ngIf="!this.useExpandedTrackListView"
+                    icon="las la-expand-arrows-alt"
+                    matTooltip="{{ 'expanded-view' | translate }}"
+                    (click)="this.toggleTrackView()"
+                ></app-icon-button>
+                <app-icon-button
+                    *ngIf="this.useExpandedTrackListView"
+                    icon="las la-compress-arrows-alt"
+                    matTooltip="{{ 'compact-view' | translate }}"
+                    (click)="this.toggleTrackView()"
+                ></app-icon-button>
+            </div>
+            <app-iterable-menu
+                *ngIf="this.showOrdering"
+                [tooltipKey]="'choose-order'"
+                [currentItem]="selectedTrackOrder"
+                [items]="trackOrders"
+                [itemKeyFn]="trackOrderKey"
+                [applyItemFn]="applyTrackOrder"
+            >
+            </app-iterable-menu>
+        </div>
     </div>
-    <cdk-virtual-scroll-viewport class="flex-grow mt-3" itemSize="46">
+    <cdk-virtual-scroll-viewport class="flex-grow mt-3" [itemSize]="this.trackRowHeight">
         <div *cdkVirtualFor="let track of this.orderedTracks" (mousedown)="setSelectedTracks($event, track)">
-            <app-track
-                [track]="track"
-                canShowHeader="true"
+            <app-track [track]="track" [canShowHeader]="true" [useExpandedView]="this.useExpandedTrackListView"
                 (dblclick)="playbackService.enqueueAndPlayTracksStartingFromGivenTrackAsync(this.orderedTracks, track)"
-                (contextmenu)="onTrackContextMenu($event, track)"
-            ></app-track>
+                (contextmenu)="onTrackContextMenu($event, track)"></app-track>
         </div>
     </cdk-virtual-scroll-viewport>
-    <app-totals
-        class="mt-3"
-        [totalDurationInMilliseconds]="this.tracks.totalDurationInMilliseconds"
-        [totalFileSizeInBytes]="this.tracks.totalFileSizeInBytes"
-    ></app-totals>
+    <app-totals class="mt-3" [totalDurationInMilliseconds]="this.tracks.totalDurationInMilliseconds"
+        [totalFileSizeInBytes]="this.tracks.totalFileSizeInBytes"></app-totals>
 </div>
 
-<div
-    #trackContextMenuAnchor
-    style="visibility: hidden; position: fixed"
-    [style.left]="contextMenuOpener.positionX"
-    [style.top]="contextMenuOpener.positionY"
-    [matMenuTriggerFor]="trackContextMenu"
-></div>
+<div #trackContextMenuAnchor style="visibility: hidden; position: fixed" [style.left]="contextMenuOpener.positionX"
+    [style.top]="contextMenuOpener.positionY" [matMenuTriggerFor]="trackContextMenu"></div>
 
 <mat-menu #trackContextMenu="matMenu">
     <ng-template matMenuContent let-genre="data">
@@ -63,24 +68,22 @@
 </mat-menu>
 
 <mat-menu #addToPlaylistContextMenu="matMenu">
-    <div *ngIf="!this.addToPlaylistMenu.hasPlaylists" mat-menu-item class="inactive">{{ 'no-playlists' | translate }}</div>
+    <div *ngIf="!this.addToPlaylistMenu.hasPlaylists" mat-menu-item class="inactive">{{ 'no-playlists' | translate }}
+    </div>
     <div *ngIf="this.addToPlaylistMenu.hasPlaylists">
         <ng-container *ngFor="let playlist of this.addToPlaylistMenu.playlists | keyvalue">
             <button mat-menu-item [matMenuTriggerFor]="playlistsMenu">
                 <span>{{ playlist.key }}</span>
             </button>
             <mat-menu #playlistsMenu="matMenu">
-                <button
-                    *ngFor="let playlist of this.addToPlaylistMenu.playlists[playlist.key] | keyvalue"
-                    mat-menu-item
+                <button *ngFor="let playlist of this.addToPlaylistMenu.playlists[playlist.key] | keyvalue" mat-menu-item
                     (click)="
                         this.addToPlaylistMenu.addTracksToPlaylistAsync(
                             playlist.value.path,
                             playlist.value.name,
                             this.mouseSelectionWatcher.selectedItems
                         )
-                    "
-                >
+                    ">
                     <span>{{ playlist.value.name }}</span>
                 </button>
             </mat-menu>

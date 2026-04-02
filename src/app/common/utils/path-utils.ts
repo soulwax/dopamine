@@ -1,11 +1,24 @@
-import { StringUtils } from './string-utils';
+import { pathToFileURL } from 'node:url';
 
 export class PathUtils {
-    public static createPlayableAudioFilePath(audioFilePath: string): string {
-        // HTMLAudioElement doesn't play paths which contain # and ?, so we escape them.
-        let playableAudioFilePath: string = StringUtils.replaceAll(audioFilePath, '#', '%23');
-        playableAudioFilePath = StringUtils.replaceAll(playableAudioFilePath, '?', '%3F');
+    private static readonly fileProtocol: string = 'file://';
 
-        return `file:///${playableAudioFilePath}`;
+    public static createFileUrl(filePath: string): string {
+        if (this.isUnixStyleAbsolutePath(filePath)) {
+            const fileUrl: URL = new URL(this.fileProtocol);
+            fileUrl.pathname = filePath;
+            return fileUrl.toString();
+        }
+
+        const fileUrl: URL = pathToFileURL(filePath);
+        return fileUrl.toString();
+    }
+
+    public static createPlayableAudioFilePath(audioFilePath: string): string {
+        return PathUtils.createFileUrl(audioFilePath);
+    }
+
+    private static isUnixStyleAbsolutePath(filePath: string): boolean {
+        return filePath.startsWith('/') && !filePath.startsWith('//');
     }
 }

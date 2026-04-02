@@ -15,6 +15,7 @@ import { PlaybackIndicationServiceBase } from '../../../../../services/playback-
 import { DesktopBase } from '../../../../../common/io/desktop.base';
 import { MouseSelectionWatcher } from '../../../mouse-selection-watcher';
 import { ContextMenuOpener } from '../../../context-menu-opener';
+import { SettingsBase } from '../../../../../common/settings/settings.base';
 
 @Component({
     selector: 'app-playlist-track-browser',
@@ -38,12 +39,21 @@ export class PlaylistTrackBrowserComponent implements OnInit, OnDestroy {
         private dialogService: DialogServiceBase,
         private desktop: DesktopBase,
         private logger: Logger,
+        private settings: SettingsBase,
     ) {}
 
     @ViewChild('playlistTrackContextMenuAnchor', { read: MatMenuTrigger, static: false })
     public playlistTrackContextMenu: MatMenuTrigger;
 
     public orderedTracks: TrackModel[] = [];
+    public useExpandedTrackListView: boolean = false;
+
+    public readonly compactTrackRowHeight: number = 46;
+    public readonly expandedTrackRowHeight: number = 60;
+
+    public get trackRowHeight(): number {
+        return this.useExpandedTrackListView ? this.expandedTrackRowHeight : this.compactTrackRowHeight;
+    }
 
     public get tracksPersister(): BaseTracksPersister {
         return this._tracksPersister;
@@ -71,6 +81,8 @@ export class PlaylistTrackBrowserComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit(): void {
+        this.useExpandedTrackListView = this.settings.useExpandedTrackListView;
+
         this.subscription.add(
             this.playbackService.playbackStarted$.subscribe((playbackStarted: PlaybackStarted) => {
                 this.playbackIndicationService.setPlayingTrack(this.orderedTracks, playbackStarted.currentTrack);
@@ -86,6 +98,11 @@ export class PlaylistTrackBrowserComponent implements OnInit, OnDestroy {
 
     public setSelectedTracks(event: MouseEvent, trackToSelect: TrackModel): void {
         this.mouseSelectionWatcher.setSelectedItems(event, trackToSelect);
+    }
+
+    public toggleTrackView(): void {
+        this.useExpandedTrackListView = !this.useExpandedTrackListView;
+        this.settings.useExpandedTrackListView = this.useExpandedTrackListView;
     }
 
     public onPlaylistTrackContextMenu(event: MouseEvent, track: TrackModel): void {

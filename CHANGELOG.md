@@ -5,7 +5,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.4] - 2026-04-01
 
+### Added
+
+- Added an optional expanded song list view with album cover thumbnails on collection and playlist song lists.
+
+### Changed
+
+- The song list view toggle now remembers your preference while keeping the original compact rows as the default layout.
+
 ### Fixed
+
+- The expanded song list now falls back cleanly when cached artwork files are missing.
 
 - Delete button is not visible when folder is not selected in "Manage collection" screen
 - Window size increases when dragging

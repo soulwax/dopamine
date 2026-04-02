@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {Constants} from "../../common/application/constants";
+import { Constants } from '../../common/application/constants';
+import { PathUtils } from '../../common/utils/path-utils';
 
 @Pipe({ name: 'imageToFilePath' })
 export class ImageToFilePathPipe implements PipeTransform {
@@ -8,6 +9,6 @@ export class ImageToFilePathPipe implements PipeTransform {
             return path;
         }
 
-        return `file:///${path}`;
+        return PathUtils.createFileUrl(path);
     }
 }

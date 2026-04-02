@@ -41,7 +41,7 @@ export class QueryParts {
                                                        MAX(t.DateAdded) AS dateAdded,
                                                        MAX(t.DateLastPlayed) AS dateLastPlayed,
                                                        SUM(t.PlayCount) AS playCount FROM Track t
-                                                       LEFT JOIN AlbumArtwork a ON t.AlbumKey${albumKeyIndex}=a.AlbumKey`;
+                                                       ${this.albumArtworkJoin('a', `t.AlbumKey${albumKeyIndex}`)}`;
 
         if (onlyVisibleAlbumData) {
             selectAlbumDataQueryPart += ' ' + this.folderJoins();
@@ -59,6 +59,9 @@ export class QueryParts {
                                                              t.AlbumKey AS albumKey,
                                                              t.AlbumKey2 AS albumKey2,
                                                              t.AlbumKey3 AS albumKey3,
+                                                             a1.ArtworkID AS artworkId,
+                                                             a2.ArtworkID AS artworkId2,
+                                                             a3.ArtworkID AS artworkId3,
                                                              t.Path AS path,
                                                              t.FileName AS fileName,
                                                              t.MimeType AS mimeType,
@@ -89,7 +92,10 @@ export class QueryParts {
                                                              t.Composers AS composers,
                                                              t.Conductor AS conductor,
                                                              t.BeatsPerMinute AS beatsPerMinute
-                                                             FROM Track t`;
+                                                             FROM Track t
+                                                             ${this.albumArtworkJoin('a1', 't.AlbumKey')}
+                                                             ${this.albumArtworkJoin('a2', 't.AlbumKey2')}
+                                                             ${this.albumArtworkJoin('a3', 't.AlbumKey3')}`;
 
         if (onlyVisibleTracks) {
             selectTracksQueryPart += ' ' + this.folderJoins();
@@ -102,5 +108,13 @@ export class QueryParts {
         return `INNER JOIN FolderTrack ft ON ft.TrackID = t.TrackID
                 INNER JOIN Folder f ON ft.FolderID = f.FolderID
                 WHERE f.ShowInCollection = 1 AND t.IndexingSuccess = 1 AND t.NeedsIndexing = 0`;
+    }
+
+    private static albumArtworkJoin(alias: string, albumKeyExpression: string): string {
+        return `LEFT JOIN (
+                    SELECT AlbumKey, MAX(ArtworkID) AS ArtworkID
+                    FROM AlbumArtwork
+                    GROUP BY AlbumKey
+                ) ${alias} ON ${albumKeyExpression} = ${alias}.AlbumKey`;
     }
 }

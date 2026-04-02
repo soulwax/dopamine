@@ -1,11 +1,14 @@
 import { DataDelimiter } from '../../data/data-delimiter';
+import { Constants } from '../../common/application/constants';
+import { ApplicationPaths } from '../../common/application/application-paths';
+import { FileAccessBase } from '../../common/io/file-access.base';
 import { Track } from '../../data/entities/track';
 import { DateTime } from '../../common/date-time';
 import { StringUtils } from '../../common/utils/string-utils';
+import { PathUtils } from '../../common/utils/path-utils';
 import { TranslatorServiceBase } from '../translator/translator.service.base';
 import { ISelectable } from '../../ui/interfaces/i-selectable';
 import { CollectionUtils } from '../../common/utils/collections-utils';
-import { Constants } from '../../common/application/constants';
 
 export class TrackModel implements ISelectable {
     public constructor(
@@ -13,7 +16,9 @@ export class TrackModel implements ISelectable {
         private dateTime: DateTime,
         private translatorService: TranslatorServiceBase,
         private albumKeyIndex: string,
-    ) {}
+        private applicationPaths?: ApplicationPaths,
+        private fileAccess?: FileAccessBase,
+    ) { }
 
     public isPlaying: boolean = false;
     public isSelected: boolean = false;
@@ -153,6 +158,20 @@ export class TrackModel implements ISelectable {
         return this.track.albumTitle!;
     }
 
+    public get artworkPath(): string {
+        if (this.applicationPaths == undefined || StringUtils.isNullOrWhiteSpace(this.selectedArtworkId)) {
+            return Constants.emptyImage;
+        }
+
+        const fullArtworkPath: string = this.applicationPaths.coverArtFullPath(this.selectedArtworkId!);
+
+        if (this.fileAccess != undefined && !this.fileAccess.pathExists(fullArtworkPath)) {
+            return Constants.emptyImage;
+        }
+
+        return PathUtils.createFileUrl(fullArtworkPath);
+    }
+
     public get rawAlbumTitle(): string {
         if (StringUtils.isNullOrWhiteSpace(this.track.albumTitle)) {
             return '';
@@ -251,10 +270,29 @@ export class TrackModel implements ISelectable {
     }
 
     public clone(): TrackModel {
-        return new TrackModel(this.track, this.dateTime, this.translatorService, this.albumKeyIndex);
+        return new TrackModel(
+            this.track,
+            this.dateTime,
+            this.translatorService,
+            this.albumKeyIndex,
+            this.applicationPaths,
+            this.fileAccess,
+        );
     }
 
     public setTrack(track: Track): void {
         this.track = track;
+    }
+
+    private get selectedArtworkId(): string | undefined {
+        if (this.albumKeyIndex === '2') {
+            return this.track.artworkId2;
+        }
+
+        if (this.albumKeyIndex === '3') {
+            return this.track.artworkId3;
+        }
+
+        return this.track.artworkId;
     }
 }
