@@ -47,7 +47,7 @@ class FileMetadataImplementation implements IFileMetadata {
         this.isSaved = true;
     }
 
-    public async loadAsync(): Promise<void> {}
+    public async loadAsync(): Promise<void> { }
 }
 
 describe('MetadataService', () => {
@@ -136,8 +136,8 @@ describe('MetadataService', () => {
             const track: TrackModel = MockCreator.createTrackModelWithAlbumKey('path1', 'albumKey1');
             const fileMetaDataMock: any = {};
             fileMetadataFactoryMock.setup((x) => x.createAsync('path1')).returns(() => Promise.resolve(fileMetaDataMock));
-            cachedAlbumArtworkGetterMock.setup((x) => x.getCachedAlbumArtworkPath('albumKey1')).returns(() => 'cachedAlbumArtworkPath1');
-            fileAccessMock.setup((x) => x.pathExists('cachedAlbumArtworkPath1')).returns(() => true);
+            cachedAlbumArtworkGetterMock.setup((x) => x.getCachedAlbumArtworkPath('albumKey1')).returns(() => '/cachedAlbumArtworkPath1');
+            fileAccessMock.setup((x) => x.pathExists('/cachedAlbumArtworkPath1')).returns(() => true);
 
             // Act
             const imageUrl: string = await service.createAlbumImageUrlAsync(track, 0);

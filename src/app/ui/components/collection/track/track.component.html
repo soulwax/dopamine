@@ -4,38 +4,62 @@
             {{ track.albumTitle }}
         </div>
         <div class="secondary-text ellipsis mb-1" matTooltip="{{ track.albumArtists }}">{{ track.albumArtists }}</div>
-        <div
-            class="disc-label"
-            *ngIf="track.discNumber > 0 && track.discCount > 1"
-            matTooltip="{{ track.discNumber }}/{{ track.discCount }}"
-        >
+        <div class="disc-label" *ngIf="track.discNumber > 0 && track.discCount > 1"
+            matTooltip="{{ track.discNumber }}/{{ track.discCount }}">
             {{ track.discNumber }}/{{ track.discCount }}
         </div>
     </div>
-    <div
-        class="app-track__body px-1"
-        [ngClass]="{ 'selected-item-background-important': track.isSelected }"
-        matRipple
-        [matRippleTrigger]="trigger"
-        #trigger
-    >
-        <div class="app-track__left secondary-text">
+    <div class="app-track__body px-1" [ngClass]="{
+            'selected-item-background-important': track.isSelected,
+            'app-track__body--expanded': this.useExpandedView
+        }" matRipple [matRippleTrigger]="trigger" #trigger>
+        <div class="app-track__left secondary-text" [ngClass]="{ 'app-track__left--expanded': this.useExpandedView }">
             {{ track.number | formatTrackNumber }}
         </div>
-        <div class="app-track__right">
-            <div class="app-track__top">
-                <span class="app-track__top__title ellipsis" [ngClass]="{ 'accent-color': track.isPlaying }">{{ track.title }}</span>
-                <div class="app-track__playback__and__duration">
-                    <app-playback-indicator *ngIf="track.isPlaying" class="mx-2" [isSelected]="track.isSelected"></app-playback-indicator>
+        <div *ngIf="this.useExpandedView" class="app-track__cover"
+            [ngClass]="{ 'app-track__cover--rounded': !this.settings.showSquareImages }">
+            <div class="app-track__cover__placeholder">
+                <svg width="256" height="256" viewBox="0 0 256 256">
+                    <defs>
+                        <linearGradient [attr.id]="coverGradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="30%" stop-color="var(--theme-primary-color)" />
+                            <stop offset="100%" stop-color="var(--theme-secondary-color)" />
+                        </linearGradient>
+                    </defs>
+
+                    <path
+                        d="M 208.79492 0 L 208.79492 85.669922 A 104.26329 104.26329 0 0 0 128.05273 47.373047 A 104.26329 104.26329 0 0 0 23.789062 151.63672 A 104.26329 104.26329 0 0 0 128.05273 255.90039 A 104.26329 104.26329 0 0 0 232.31641 151.63672 A 104.26329 104.26329 0 0 0 232.30859 150.50391 L 232.31055 150.50391 L 232.31055 0 L 208.79492 0 z M 128.05273 71.195312 A 80.750832 80.441704 0 0 1 208.79492 150.50391 A 80.750832 80.441704 0 0 1 208.80273 151.63672 A 80.750832 80.441704 0 0 1 128.05273 232.07812 A 80.750832 80.441704 0 0 1 47.302734 151.63672 A 80.750832 80.441704 0 0 1 128.05273 71.195312 z M 127.9707 134.98047 A 16.65657 16.65657 0 0 0 111.39648 151.63672 A 16.65657 16.65657 0 0 0 128.05273 168.29297 A 16.65657 16.65657 0 0 0 144.70898 151.63672 A 16.65657 16.65657 0 0 0 128.05273 134.98047 A 16.65657 16.65657 0 0 0 127.9707 134.98047 z"
+                        [attr.fill]="'url(#' + coverGradientId + ')'" />
+                </svg>
+            </div>
+            <img class="app-track__cover__image"
+                [ngClass]="{ 'app-track__cover--rounded': !this.settings.showSquareImages }"
+                [attr.src]="track.artworkPath" width="40" height="40" loading="lazy" draggable="false" />
+        </div>
+        <div class="app-track__right" [ngClass]="{ 'app-track__right--expanded': this.useExpandedView }">
+            <div class="app-track__top" [ngClass]="{ 'app-track__top--expanded': this.useExpandedView }">
+                <span class="app-track__top__title ellipsis" [ngClass]="{ 'accent-color': track.isPlaying }">{{
+                    track.title }}</span>
+                <div class="app-track__playback__and__duration"
+                    [ngClass]="{ 'app-track__playback__and__duration--expanded': this.useExpandedView }">
+                    <app-playback-indicator *ngIf="track.isPlaying" class="mx-2"
+                        [isSelected]="track.isSelected"></app-playback-indicator>
                     <div [ngClass]="{ 'accent-color': track.isPlaying }">
                         {{ track.durationInMilliseconds | formatTrackDuration }}
                     </div>
                 </div>
             </div>
-            <div class="app-track__bottom">
+            <div *ngIf="!this.useExpandedView" class="app-track__bottom">
                 <span class="ellipsis secondary-text smaller">{{ track.artists }}</span>
                 <span></span>
-                <div class="d-flex flex-row align-items-center justify-content-center red">
+                <div class="app-track__meta-actions d-flex flex-row align-items-center justify-content-center red">
+                    <app-rating class="app-track__rating" [track]="track" *ngIf="this.settings.showRating"></app-rating>
+                    <app-love class="app-track__love ml-2" [track]="track" *ngIf="this.settings.showLove"></app-love>
+                </div>
+            </div>
+            <div *ngIf="this.useExpandedView" class="app-track__bottom app-track__bottom--expanded">
+                <span class="app-track__bottom__artists ellipsis secondary-text smaller">{{ track.artists }}</span>
+                <div class="app-track__meta-actions d-flex flex-row align-items-center justify-content-center red">
                     <app-rating class="app-track__rating" [track]="track" *ngIf="this.settings.showRating"></app-rating>
                     <app-love class="app-track__love ml-2" [track]="track" *ngIf="this.settings.showLove"></app-love>
                 </div>

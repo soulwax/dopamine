@@ -862,6 +862,15 @@ export class Settings implements SettingsBase {
         this.set('useCompactYearView', v);
     }
 
+    // useExpandedTrackListView
+    public get useExpandedTrackListView(): boolean {
+        return this.get<boolean>('useExpandedTrackListView');
+    }
+
+    public set useExpandedTrackListView(v: boolean) {
+        this.set('useExpandedTrackListView', v);
+    }
+
     // miniPlayerAlwaysOnTop
     public get miniPlayerAlwaysOnTop(): boolean {
         return this.get<boolean>('miniPlayerAlwaysOnTop');

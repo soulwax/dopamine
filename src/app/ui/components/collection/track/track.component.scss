@@ -9,6 +9,12 @@
     background: var(--theme-hovered-item-background);
 }
 
+.app-track__body--expanded {
+    align-items: center;
+    gap: 8px;
+    height: 60px;
+}
+
 .app-track__left {
     display: flex;
     width: 40px;
@@ -16,6 +22,48 @@
     height: 46px;
     align-items: center;
     justify-content: center;
+}
+
+.app-track__left--expanded {
+    height: 60px;
+}
+
+.app-track__cover {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    overflow: hidden;
+    background: var(--theme-album-cover-background);
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.app-track__cover > * {
+    grid-row-start: 1;
+    grid-column-start: 1;
+}
+
+.app-track__cover__placeholder {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-track__cover__placeholder svg {
+    width: 60%;
+    height: 60%;
+}
+
+.app-track__cover__image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.app-track__cover--rounded {
+    border-radius: 6px;
 }
 
 .app-track__right {
@@ -26,12 +74,24 @@
     min-width: 0;
 }
 
+.app-track__right--expanded {
+    justify-content: center;
+    height: 60px;
+}
+
 .app-track__top {
     display: flex;
     flex-direction: row;
     height: 23px;
     justify-content: space-between;
     align-items: flex-end;
+}
+
+.app-track__top--expanded {
+    min-height: 24px;
+    height: auto;
+    align-items: center;
+    gap: 12px;
 }
 
 .app-track__bottom {
@@ -42,11 +102,35 @@
     justify-content: space-between;
 }
 
+.app-track__bottom--expanded {
+    min-height: 20px;
+    height: auto;
+    gap: 12px;
+}
+
+.app-track__top__title {
+    flex: 1;
+    min-width: 0;
+}
+
+.app-track__bottom__artists {
+    flex: 1;
+    min-width: 0;
+}
+
+.app-track__meta-actions {
+    flex-shrink: 0;
+}
+
 .app-track__playback__and__duration {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+}
+
+.app-track__playback__and__duration--expanded {
+    flex-shrink: 0;
 }
 
 .disc-label {
@@ -57,11 +141,3 @@
     align-self: flex-start;
     font-size: 0.85em;
 }
-
-//.app-track__rating {
-//    height: 23px;
-//}
-//
-//.app-track__love {
-//    height: 23px;
-//}

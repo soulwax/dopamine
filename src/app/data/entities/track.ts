@@ -8,6 +8,9 @@ export class Track {
         this.albumKey = '';
         this.albumKey2 = '';
         this.albumKey3 = '';
+        this.artworkId = '';
+        this.artworkId2 = '';
+        this.artworkId3 = '';
         this.fileName = '';
         this.mimeType = '';
         this.fileSize = 0;
@@ -47,6 +50,9 @@ export class Track {
     public albumKey: string | undefined;
     public albumKey2: string | undefined;
     public albumKey3: string | undefined;
+    public artworkId: string | undefined;
+    public artworkId2: string | undefined;
+    public artworkId3: string | undefined;
     public fileName: string;
     public mimeType: string | undefined;
     public fileSize: number | undefined;

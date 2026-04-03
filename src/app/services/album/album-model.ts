@@ -5,13 +5,14 @@ import { StringUtils } from '../../common/utils/string-utils';
 import { TranslatorServiceBase } from '../translator/translator.service.base';
 import { ISelectable } from '../../ui/interfaces/i-selectable';
 import { ApplicationPaths } from '../../common/application/application-paths';
+import { PathUtils } from '../../common/utils/path-utils';
 
 export class AlbumModel implements ISelectable {
     public constructor(
         private albumData: AlbumData,
         private translatorService: TranslatorServiceBase,
         private applicationPaths: ApplicationPaths,
-    ) {}
+    ) { }
 
     public isSelected: boolean = false;
     public showYear: boolean = false;
@@ -22,7 +23,7 @@ export class AlbumModel implements ISelectable {
             return Constants.emptyImage;
         }
 
-        return 'file:///' + this.applicationPaths.coverArtFullPath(this.albumData.artworkId!);
+        return PathUtils.createFileUrl(this.applicationPaths.coverArtFullPath(this.albumData.artworkId!));
     }
 
     public get albumArtist(): string {

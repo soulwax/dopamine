@@ -15,6 +15,7 @@ import { FileMetadataFactoryBase } from '../../common/metadata/file-metadata.fac
 import { SettingsBase } from '../../common/settings/settings.base';
 import { ImageComparisonStatus } from './image-comparison-status';
 import { ImageRenderData } from './image-render-data';
+import { PathUtils } from '../../common/utils/path-utils';
 
 @Injectable({ providedIn: 'root' })
 export class MetadataService {
@@ -30,7 +31,7 @@ export class MetadataService {
         private fileAccess: FileAccessBase,
         private settings: SettingsBase,
         private logger: Logger,
-    ) {}
+    ) { }
 
     public ratingSaved$: Observable<TrackModel> = this.ratingSaved.asObservable();
     public loveSaved$: Observable<TrackModel> = this.loveSaved.asObservable();
@@ -60,7 +61,7 @@ export class MetadataService {
             const cachedAlbumArtworkPath: string = this.cachedAlbumArtworkGetter.getCachedAlbumArtworkPath(track.albumKey);
 
             if (!StringUtils.isNullOrWhiteSpace(cachedAlbumArtworkPath) && this.fileAccess.pathExists(cachedAlbumArtworkPath)) {
-                return 'file:///' + cachedAlbumArtworkPath;
+                return PathUtils.createFileUrl(cachedAlbumArtworkPath);
             }
 
             return Constants.emptyImage;

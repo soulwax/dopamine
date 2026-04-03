@@ -23,6 +23,7 @@ import { PlaybackService } from '../../../../services/playback/playback.service'
 import { MetadataService } from '../../../../services/metadata/metadata.service';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { TrackServiceBase } from '../../../../services/track/track.service.base';
+import { SettingsBase } from '../../../../common/settings/settings.base';
 
 @Component({
     selector: 'app-track-browser',
@@ -47,6 +48,7 @@ export class TrackBrowserComponent extends TrackBrowserBase implements OnInit, O
         private guidFactory: GuidFactory,
         private trackSorter: TrackSorter,
         private trackService: TrackServiceBase,
+        private settings: SettingsBase,
         collectionService: CollectionServiceBase,
         translatorService: TranslatorServiceBase,
         dialogService: DialogServiceBase,
@@ -78,6 +80,10 @@ export class TrackBrowserComponent extends TrackBrowserBase implements OnInit, O
     public orderedTracks: TrackModel[] = [];
 
     public selectedTrackOrder: TrackOrder;
+    public useExpandedTrackListView: boolean = false;
+
+    public readonly compactTrackRowHeight: number = 46;
+    public readonly expandedTrackRowHeight: number = 60;
 
     public get tracksPersister(): BaseTracksPersister {
         return this._tracksPersister;
@@ -92,6 +98,10 @@ export class TrackBrowserComponent extends TrackBrowserBase implements OnInit, O
 
     @Input()
     public showOrdering: boolean = true;
+
+    public get trackRowHeight(): number {
+        return this.useExpandedTrackListView ? this.expandedTrackRowHeight : this.compactTrackRowHeight;
+    }
 
     public get tracks(): TrackModels {
         return this._tracks;
@@ -109,6 +119,8 @@ export class TrackBrowserComponent extends TrackBrowserBase implements OnInit, O
     }
 
     public ngOnInit(): void {
+        this.useExpandedTrackListView = this.settings.useExpandedTrackListView;
+
         this.subscription.add(
             this.playbackService.playbackStarted$.subscribe((playbackStarted: PlaybackStarted) => {
                 this.playbackIndicationService.setPlayingTrack(this.orderedTracks, playbackStarted.currentTrack);
@@ -159,6 +171,11 @@ export class TrackBrowserComponent extends TrackBrowserBase implements OnInit, O
 
     public setSelectedTracks(event: MouseEvent, trackToSelect: TrackModel): void {
         this.mouseSelectionWatcher.setSelectedItems(event, trackToSelect);
+    }
+
+    public toggleTrackView(): void {
+        this.useExpandedTrackListView = !this.useExpandedTrackListView;
+        this.settings.useExpandedTrackListView = this.useExpandedTrackListView;
     }
 
     public applyTrackOrder = (trackOrder: TrackOrder): void => {
